@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String             @id @default(uuid())
+  firstName        String
+  lastName         String
+  email            String             @unique
+  phone            String
+  passwordHash     String
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  role             String             @default("SELLER") // "SELLER" | "ADMIN"
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  submissions      SellerSubmission[]
+  messages         Message[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+}
+
+model Property {
+  id            String          @id @default(uuid())
+  title         String
+  slug          String          @unique
+  price         Float
+  address       String
+  city          String
+  state         String
+  zip           String
+  bedrooms      Int
+  bathrooms     Float
+  squareFeet    Int
+  lotSize       String?
+  propertyType  String
+  yearBuilt     Int?
+  description   String
+  features      String          @default("[]") // JSON stringified array of feature strings
+  detailedSpecs String          @default("{}") // JSON stringified object of detailed specs
+  status        String          @default("AVAILABLE") // "AVAILABLE" | "PENDING" | "SOLD" | "ARCHIVED"
+  featured      Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  images        PropertyImage[]
+  inquiries     BuyerInquiry[]
+}
+
+model PropertyImage {
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+model SellerSubmission {
+  id                String         @id @default(uuid())
+  sellerId          String
+  seller            User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  propertyAddress   String
+  city              String
+  state             String
+  zip               String
+  propertyType      String
+  bedrooms          Int
+  bathrooms         Float
+  squareFeet        Int?
+  lotSize           String?
+  yearBuilt         Int?
+  occupancy         String?
+  condition         String
+  description       String?
+  photos            String         @default("[]") // JSON stringified array of URLs / Data URLs
+  preferredContact  String         @default("Either")
+  questionnaireData String         @default("{}") // JSON stringified Opendoor questionnaire object
+  status            String         @default("NEW") // "NEW" | "UNDER_REVIEW" | "CONTACTED" | "OFFER_MADE" | "NEGOTIATING" | "ACCEPTED" | "DECLINED" | "CLOSED" | "CANCELLED"
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  offers            Offer[]
+  conversations     Conversation[]
+}
+
+model Offer {
+  id             String           @id @default(uuid())
+  submissionId   String
+  submission     SellerSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  amount         Float
+  status         String           @default("PENDING") // "PENDING" | "ACCEPTED" | "DECLINED" | "SUPERSEDED" | "WITHDRAWN"
+  message        String?
+  internalNotes  String?
+  expirationDate DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model Conversation {
+  id           String           @id @default(uuid())
+  sellerId     String
+  submissionId String
+  label        String           @default("NEW") // "NEW" | "NEEDS_FOLLOW_UP" | "HIGH_PRIORITY" | "OFFER_PENDING" | "NEGOTIATING" | "CLOSED"
+  submission   SellerSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  messages     Message[]
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+}
+
+model BuyerInquiry {
+  id         String    @id @default(uuid())
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  name       String
+  email      String
+  phone      String
+  message    String
+  status     String    @default("NEW") // "NEW" | "CONTACTED" | "CLOSED"
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action    String
+  entity    String
+  entityId  String
+  metadata  String?
+  createdAt DateTime @default(now())
+}
