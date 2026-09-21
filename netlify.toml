@@ -6,6 +6,6 @@
   package = "@netlify/plugin-nextjs"
 
 [build.environment]
-  NODE_VERSION = "18.x"
+  NODE_VERSION = "20"
   DATABASE_URL = "file:./dev.db"
   JWT_SECRET = "supersecret_jwt_key_cashforhousessummit_2026"
