@@ -30,6 +30,117 @@ import {
 
 export const revalidate = 0;
 
+const FALLBACK_PROPERTIES = [
+  {
+    id: "prop-1",
+    title: "Modern Colonial Residence in Fairview Heights",
+    slug: "modern-colonial-fairview-heights",
+    price: 345000,
+    address: "1428 Elmwood Terrace",
+    city: "Austin",
+    state: "TX",
+    zip: "78704",
+    bedrooms: 4,
+    bathrooms: 3.5,
+    squareFeet: 2850,
+    lotSize: "0.45 Acres",
+    propertyType: "Single Family",
+    status: "AVAILABLE",
+    featured: true,
+    images: [{ url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" }],
+  },
+  {
+    id: "prop-2",
+    title: "Contemporary Craftsman with Mountain Views",
+    slug: "craftsman-mountain-views",
+    price: 489000,
+    address: "882 Timberline Ridge",
+    city: "Denver",
+    state: "CO",
+    zip: "80202",
+    bedrooms: 3,
+    bathrooms: 2.5,
+    squareFeet: 2320,
+    lotSize: "0.38 Acres",
+    propertyType: "Single Family",
+    status: "AVAILABLE",
+    featured: true,
+    images: [{ url: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" }],
+  },
+  {
+    id: "prop-3",
+    title: "Refined Brick Tudor in Historic District",
+    slug: "refined-brick-tudor",
+    price: 298000,
+    address: "415 Oakmont Lane",
+    city: "Charlotte",
+    state: "NC",
+    zip: "28203",
+    bedrooms: 3,
+    bathrooms: 2.0,
+    squareFeet: 1940,
+    lotSize: "0.28 Acres",
+    propertyType: "Single Family",
+    status: "AVAILABLE",
+    featured: true,
+    images: [{ url: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80" }],
+  },
+  {
+    id: "prop-4",
+    title: "Luxury Waterfront Villa & Private Dock",
+    slug: "luxury-waterfront-villa",
+    price: 625000,
+    address: "104 Ocean View Boulevard",
+    city: "Miami",
+    state: "FL",
+    zip: "33139",
+    bedrooms: 5,
+    bathrooms: 4.0,
+    squareFeet: 3400,
+    lotSize: "0.50 Acres",
+    propertyType: "Single Family",
+    status: "AVAILABLE",
+    featured: true,
+    images: [{ url: "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80" }],
+  },
+  {
+    id: "prop-5",
+    title: "Architectural Modern Loft in Downtown",
+    slug: "architectural-modern-loft",
+    price: 395000,
+    address: "520 Pine Street #8B",
+    city: "Seattle",
+    state: "WA",
+    zip: "98101",
+    bedrooms: 2,
+    bathrooms: 2.0,
+    squareFeet: 1650,
+    lotSize: "N/A",
+    propertyType: "Condo",
+    status: "AVAILABLE",
+    featured: true,
+    images: [{ url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80" }],
+  },
+  {
+    id: "prop-6",
+    title: "Suburban Family Haven with Swimming Pool",
+    slug: "suburban-family-haven",
+    price: 412000,
+    address: "245 Peachtree Ridge",
+    city: "Atlanta",
+    state: "GA",
+    zip: "30305",
+    bedrooms: 4,
+    bathrooms: 3.0,
+    squareFeet: 2600,
+    lotSize: "0.40 Acres",
+    propertyType: "Single Family",
+    status: "AVAILABLE",
+    featured: true,
+    images: [{ url: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80" }],
+  },
+];
+
 export default async function HomePage() {
   const session = await getSession();
 
@@ -38,11 +149,15 @@ export default async function HomePage() {
     featuredProperties = await db.property.findMany({
       where: { status: "AVAILABLE" },
       include: { images: { orderBy: { sortOrder: "asc" } } },
-      take: 3,
+      take: 6,
       orderBy: { createdAt: "desc" },
     });
   } catch (e) {
     featuredProperties = [];
+  }
+
+  if (featuredProperties.length === 0) {
+    featuredProperties = FALLBACK_PROPERTIES;
   }
 
   return (
@@ -51,19 +166,15 @@ export default async function HomePage() {
 
       <main className="flex-grow">
         
-        {/* 1. HERO SECTION: OPENDOOR-INSPIRED LARGE TYPOGRAPHY & AIRY DESIGN */}
+        {/* 1. HERO SECTION */}
         <section className="relative py-16 sm:py-24 lg:py-32 bg-gradient-to-b from-white via-[#FAFAFA] to-slate-50/90 overflow-hidden border-b border-slate-200/80">
-          
-          {/* Subtle Ambient Background Lighting */}
           <div className="absolute top-12 left-1/4 w-96 h-96 bg-brand-orange/5 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-12 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
               
-              {/* Left Column: Opendoor-Style Large Typography */}
               <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-                
                 <div className="inline-flex items-center gap-2 bg-brand-orange-light text-brand-orange text-sm font-bold px-4 py-2 rounded-full border border-brand-orange/20 shadow-sm mx-auto lg:mx-0">
                   <Sparkles className="w-4 h-4 fill-brand-orange" />
                   <span>Direct Home Buyer & 3D Property Platform</span>
@@ -80,7 +191,6 @@ export default async function HomePage() {
                   Cash for Houses Summit buys homes directly from homeowners nationwide. Receive a transparent cash offer within 48 hours with zero listing fees, or explore available homes for sale.
                 </p>
 
-                {/* Hero Dual CTAs */}
                 <div className="pt-3 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                   <Link href="/seller/submit-property" className="w-full sm:w-auto">
                     <Button variant="primary" size="lg" className="w-full gap-2 px-9 py-4 text-lg font-bold shadow-lg">
@@ -97,7 +207,6 @@ export default async function HomePage() {
                   </Link>
                 </div>
 
-                {/* Trust Points Bar */}
                 <div className="pt-8 border-t border-slate-200/80 grid grid-cols-3 gap-4 text-sm sm:text-base font-semibold text-slate-700">
                   <div className="flex items-center gap-2 justify-center lg:justify-start">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
@@ -112,10 +221,8 @@ export default async function HomePage() {
                     <span>48-Hour Cash Offer</span>
                   </div>
                 </div>
-
               </div>
 
-              {/* Right Column: 3D Interactive Hero Canvas */}
               <div className="lg:col-span-5">
                 <Hero3DCanvas />
               </div>
@@ -148,24 +255,26 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* 3. FEATURED AVAILABLE PROPERTIES SECTION (MOVED RIGHT AFTER HERO & TRUST BAR) */}
+        {/* 3. FEATURED AVAILABLE PROPERTIES SECTION (6 DEMO PROPERTIES - RIGHT ABOVE TWO DIRECT OPTIONS) */}
         {featuredProperties.length > 0 && (
           <section className="py-24 bg-[#FAFAFA] border-b border-slate-200/80">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                  <span className="text-xs font-bold text-brand-orange uppercase tracking-wider">Available Catalog</span>
-                  <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-dark">Featured Available Properties</h2>
+                  <span className="text-xs font-bold text-brand-orange uppercase tracking-wider bg-brand-orange-light px-3.5 py-1.5 rounded-full border border-brand-orange/20">
+                    Direct Available Catalog
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-dark mt-2">Available Properties For Sale</h2>
                 </div>
                 <Link href="/properties">
                   <Button variant="outline" size="sm" className="gap-2 font-semibold text-sm">
-                    <span>View All Properties</span>
+                    <span>View All 6 Properties</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {featuredProperties.map((prop) => (
                   <Card3D key={prop.id}>
                     <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-lg hover:shadow-2xl transition-all group flex flex-col justify-between h-full">
@@ -333,7 +442,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* 6. HOMEOWNER TESTIMONIALS / REVIEWS SECTION (MOVED TO END ABOVE FAQ) */}
+        {/* 6. HOMEOWNER TESTIMONIALS / REVIEWS SECTION */}
         <TestimonialsSection />
 
         {/* 7. FAQ ACCORDION SECTION */}
